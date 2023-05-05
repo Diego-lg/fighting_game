@@ -12,20 +12,30 @@ class Sprite {
         this.framesElapsed = 0;
         this.framesHold = 15;
         this.offset = offset;
-    
+        
+        
     }   
 
     draw() {
+        const spriteWidth = this.image.width / this.framesMax;
+        const spriteHeight = this.image.height;
+        const flip = this.viewpoint === -1 ? -1 : 1;
+        
+        
+
+        c.save(); // Save the current context state
+        c.scale(flip, 1); // Flip the canvas horizontally if viewpoint is -1
         c.drawImage(this.image,
-            this.framesCurrent * (this.image.width / this.framesMax),
-            0,
-            (this.image.width / this.framesMax),
-            this.image.height,
-            this.position.x - this.offset.x,
-            this.position.y - this.offset.y, 
-            (this.image.width / this.framesMax) * this.scale,
-            this.image.height * this.scale
+          this.framesCurrent * spriteWidth,
+          0,
+          spriteWidth,
+          spriteHeight,
+          (this.position.x - this.offset.x) * flip, // Flip the position if viewpoint is -1
+          this.position.y - this.offset.y,
+          spriteWidth * this.scale * flip, // Flip the sprite width if viewpoint is -1
+          spriteHeight * this.scale
         );
+        c.restore(); // Restore the saved context state
     }
 
     animateFrames()
@@ -72,7 +82,8 @@ class Fighter extends Sprite{
             width: attackBox.width,
             height:attackBox.height 
         }
-
+        
+        this.viewpoint = 1;
         this.color = color
         this.isAttacking
         this.health = 100;
@@ -82,6 +93,16 @@ class Fighter extends Sprite{
         this.sprites = sprites;
         this.dead = false;
 
+
+        // PRUEBA 
+
+        this.scaleX *= -1;
+
+
+
+        // PRUEBA
+
+
         for (const sprite in this.sprites){
             sprites[sprite].image = new Image()
             sprites[sprite].image.src = sprites[sprite].imageSrc
@@ -89,7 +110,7 @@ class Fighter extends Sprite{
         console.log(this.sprites);
         }
     
-
+        
     update() {
         
         this.draw();
@@ -97,11 +118,11 @@ class Fighter extends Sprite{
         
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x; 
         this.attackBox.position.y = this.position.y + this.attackBox.offset.y;
-
+        
 
         //show hitbox of attack
        // c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-
+        
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
     
@@ -113,13 +134,14 @@ class Fighter extends Sprite{
 
     }
 
+    
     attack() {
         this.switchSprite('attack1');
         this.isAttacking = true;     
     }
     takeHit()
     {
-        this.health -= 5;
+        this.health -= 10;
         if (this.health <= 0)
         {
             this.switchSprite('death');
